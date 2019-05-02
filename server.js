@@ -4,26 +4,33 @@ const { buildSchema } = require('graphql');
 // GraphQL schema
 const schema = buildSchema(`
     type Query {
-        course(id: Int!): Course
-        courses(topic: String): [Course]
-    },
+      course(id: Int!): Course
+      courses(topic: String): [Course]
+		},
     type Mutation {
-      updateCourseTopic(id: Int!, topic: String!): Course
-    },
+      updateCourseTopic(input: UpdateCourseTopicInput!): UpdateCourseTopicPayload
+		},
     type Course {
-        id: Int
-        title: String
-        author: String
-        description: String
-        topic: String
-        url: String,
-        instructor: Instructor! 
+			id: Int
+			title: String
+			author: String
+			description: String
+			topic: String
+			url: String,
+			instructor: Instructor! 
     },
     type Instructor {
       id: Int
       name: String
       courses: [Course!]!
-    }
+		},
+		input UpdateCourseTopicInput {
+			id: Int!
+			topic: String!
+		},
+		type UpdateCourseTopicPayload {
+			course: Course
+		}
 `);
 const coursesData = [
 	{
@@ -102,7 +109,7 @@ const getCourses = async function(variables) {
 	}
 };
 
-const updateCourseTopic = ({ id, topic }) => {
+const updateCourseTopic = ({ input: { id, topic } }) => {
 	const course = coursesData.find(course => course.id === id);
 	const index = coursesData.indexOf(course);
 	if (course) {
@@ -112,7 +119,7 @@ const updateCourseTopic = ({ id, topic }) => {
 		coursesData[index] = course;
 	}
 
-	return course;
+	return { course };
 };
 
 const root = {
